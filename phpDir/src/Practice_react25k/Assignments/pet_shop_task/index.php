@@ -53,8 +53,11 @@ class PetShop {
         $_SESSION['pets'][] = $pet;
     }
 
-    public function removeLastPet() {
-        array_pop($_SESSION['pets']);
+    public function removePet($index) {
+        if (isset($_SESSION['pets'][$index])) {
+            unset($_SESSION['pets'][$index]);
+            $_SESSION['pets'] = array_values($_SESSION['pets']); // Reindex the array after removal
+        }
     }
 
     public function getPets() {
@@ -74,7 +77,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $shop->addPet($type, $name, $age);
         }
     } elseif (isset($_POST['remove'])) {
-        $shop->removeLastPet();
+        $petIndex = $_POST['petIndex'] ?? null;
+        if ($petIndex !== null) {
+            $shop->removePet($petIndex);
+        }
     }
 }
 
@@ -155,7 +161,7 @@ $pets = $shop->getPets();
 </head>
 <body>
     <div class="container">
-        <h1>🐾 Pet Shop</h1>
+        <h1>Pet Shop</h1>
         <form method="POST">
             <label for="type">Pet Type:</label>
             <select name="type" id="type" required>
@@ -172,12 +178,23 @@ $pets = $shop->getPets();
 
             <div class="button-group">
                 <button type="submit" name="add">Add Pet</button>
-                <button type="submit" name="remove">Remove Last Pet</button>
             </div>
         </form>
 
-        <h2>Current Pets</h2>
         <?php if (count($pets) > 0): ?>
+            <form method="POST">
+                <label for="petIndex">Select Pet to Remove:</label>
+                <select name="petIndex" id="petIndex" required>
+                    <option value="">--Select Pet--</option>
+                    <?php foreach ($pets as $index => $pet): ?>
+                        <option value="<?= $index ?>"><?= htmlspecialchars($pet->getInfo()) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <div class="button-group">
+                    <button type="submit" name="remove">Remove Selected Pet</button>
+                </div>
+            </form>
+
             <?php foreach ($pets as $pet): ?>
                 <div class="pet-card">
                     <strong><?= htmlspecialchars($pet->getInfo()) ?></strong><br>

@@ -19,40 +19,23 @@ abstract class Pet {
     }
 }
 
-// Dog class
+// Pet types
 class Dog extends Pet {
-    public function speak() {
-        return "Woof! I'm {$this->name}.";
-    }
-
-    public function action() {
-        return "I chase my tail.";
-    }
+    public function speak() { return "Woof! I'm {$this->name}."; }
+    public function action() { return "I chase my tail."; }
 }
 
-// Cat class
 class Cat extends Pet {
-    public function speak() {
-        return "Meow! I'm {$this->name}.";
-    }
-
-    public function action() {
-        return "I nap on the windowsill.";
-    }
+    public function speak() { return "Meow! I'm {$this->name}."; }
+    public function action() { return "I nap on the windowsill."; }
 }
 
-// Bird class
 class Bird extends Pet {
-    public function speak() {
-        return "Tweet! I'm {$this->name}.";
-    }
-
-    public function action() {
-        return "I sing a sweet melody.";
-    }
+    public function speak() { return "Tweet! I'm {$this->name}."; }
+    public function action() { return "I sing a sweet melody."; }
 }
 
-// PetShop class
+// PetShop handler
 class PetShop {
     public function __construct() {
         if (!isset($_SESSION['pets'])) {
@@ -70,21 +53,28 @@ class PetShop {
         $_SESSION['pets'][] = $pet;
     }
 
+    public function removeLastPet() {
+        array_pop($_SESSION['pets']);
+    }
+
     public function getPets() {
         return $_SESSION['pets'];
     }
 }
 
-// Handle form
+// Handle input
 $shop = new PetShop();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $type = $_POST['type'] ?? '';
-    $name = $_POST['name'] ?? '';
-    $age = $_POST['age'] ?? '';
-
-    if ($type && $name && $age !== '') {
-        $shop->addPet($type, $name, $age);
+    if (isset($_POST['add'])) {
+        $type = $_POST['type'] ?? '';
+        $name = $_POST['name'] ?? '';
+        $age = $_POST['age'] ?? '';
+        if ($type && $name && $age !== '') {
+            $shop->addPet($type, $name, $age);
+        }
+    } elseif (isset($_POST['remove'])) {
+        $shop->removeLastPet();
     }
 }
 
@@ -126,18 +116,30 @@ $pets = $shop->getPets();
             margin-top: 5px;
             box-sizing: border-box;
         }
-        button {
+        .button-group {
+            display: flex;
+            gap: 10px;
             margin-top: 15px;
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
+        }
+        button {
+            flex: 1;
+            padding: 10px;
             border: none;
-            width: 100%;
             border-radius: 5px;
+            color: white;
             cursor: pointer;
         }
-        button:hover {
+        button[name="add"] {
+            background-color: #4CAF50;
+        }
+        button[name="add"]:hover {
             background-color: #45a049;
+        }
+        button[name="remove"] {
+            background-color: #f44336;
+        }
+        button[name="remove"]:hover {
+            background-color: #e53935;
         }
         .pet-card {
             background: #f9f9f9;
@@ -153,7 +155,7 @@ $pets = $shop->getPets();
 </head>
 <body>
     <div class="container">
-        <h1>🐾 Pet Shop</h1>
+        <h1>Pet Shop</h1>
         <form method="POST">
             <label for="type">Pet Type:</label>
             <select name="type" id="type" required>
@@ -168,7 +170,10 @@ $pets = $shop->getPets();
             <label for="age">Age:</label>
             <input type="number" name="age" id="age" min="0" required>
 
-            <button type="submit">Add Pet</button>
+            <div class="button-group">
+                <button type="submit" name="add">Add Pet</button>
+                <button type="submit" name="remove">Remove Last Pet</button>
+            </div>
         </form>
 
         <h2>Current Pets</h2>
