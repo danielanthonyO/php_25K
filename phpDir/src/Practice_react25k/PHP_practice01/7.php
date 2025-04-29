@@ -26,8 +26,22 @@
 
 		Step 4 - Connect to Database and read data
 
-*/
-	
+*/      $connection = mysqli_connect('db', 'root', 'lionPass', 'mylist');
+		if(!$connection) {
+			die('Database connection failed') . mysqli_error($connection);
+		} 
+		else {
+			echo "Connected";
+		}
+		
+		echo "<pre>";
+		$query = "SELECT * FROM reports"; 
+		$result = mysqli_query($connection, $query);
+		//echo $result;
+		while ($record = mysqli_fetch_assoc($result)) {
+		print_r($record);
+		// echo $record['days_of_week'];
+		}
 	?>
 
 

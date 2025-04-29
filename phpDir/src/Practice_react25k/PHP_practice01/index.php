@@ -36,6 +36,9 @@ $pass = 'lionPass';
         echo "Connected to MySQL server successfully!";
       }
       ?>
+      <?
+
+      ?>
 
       <h3>Personal message</h3>
 

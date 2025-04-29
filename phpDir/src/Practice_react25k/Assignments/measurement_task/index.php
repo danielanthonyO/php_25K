@@ -1,171 +1,206 @@
-<?php
-declare(strict_types=1);
-
-// Conversion Functions
-function celsiusToFahrenheit(float $c): float {
-    return ($c * 9/5) + 32;
-}
-function celsiusToKelvin(float $c): float {
-    return $c + 273.15;
-}
-function kmhToMs(float $speed): float {
-    return $speed * 1000 / 3600;
-}
-function kmhToKnots(float $speed): float {
-    return $speed * 0.539957;
-}
-function kgToGrams(float $kg): float {
-    return $kg * 1000;
-}
-function gramsToKg(float $g): float {
-    return $g / 1000;
-}
-
-// Result variables
-$fahrenheit = $kelvin = $ms = $knots = $grams = $kg = "";
-
-// Handle form submit
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (isset($_POST['celsius'])) {
-        $celsius = (float)$_POST['celsius'];
-        $fahrenheit = celsiusToFahrenheit($celsius);
-        $kelvin = celsiusToKelvin($celsius);
-    }
-
-    if (isset($_POST['kmh'])) {
-        $kmh = (float)$_POST['kmh'];
-        $ms = kmhToMs($kmh);
-        $knots = kmhToKnots($kmh);
-    }
-
-    if (isset($_POST['mass'])) {
-        $mass = (float)$_POST['mass'];
-        $massUnit = $_POST['massUnit'];
-
-        if ($massUnit === 'kg') {
-            $grams = kgToGrams($mass);
-        } elseif ($massUnit === 'g') {
-            $kg = gramsToKg($mass);
-        }
-    }
-}
-?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Measurement Converter</title>
+    <title>Unit Converter</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #eef2f3;
+        * { box-sizing: border-box; }
+
+        body, html {
             margin: 0;
             padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background-color: #2a2a2a;
+        }
+
+        .wrapper {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+
         }
 
         .container {
-            max-width: 700px;
-            margin: 40px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        .section {
-            margin-bottom: 30px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px 30px;
         }
 
         h2 {
-            color: #2980b9;
+            text-align: center;
+            margin: 0 0 20px;
+            color: #333;
         }
 
-        input[type="number"], select {
-            padding: 10px;
-            width: 60%;
-            font-size: 1rem;
+        form {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .converter {
+            margin: 30px 20px;
+        }
+
+        label {
+            display: block;
             margin-top: 10px;
         }
 
-        button {
-            padding: 10px 20px;
-            background: #2980b9;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            margin-top: 20px;
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 5px;
         }
 
-        button:hover {
-            background: #1c5980;
+        .input-group input,
+        .input-group select {
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .input-group input {
+            max-width: 60%;
+        }
+
+        .input-group select {
+            max-width: 40%;
+        }
+
+        input[type="submit"] {
+            background-color:rgb(30, 31, 33);
+            color: #fff;
+            cursor: pointer;
+            border: none;
+            transition: background 0.3s ease;
+            padding: 10px;
+            width: 95%;
+            border-radius: 6px;
+            margin: 20px 10px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
         }
 
         .results {
             margin-top: 10px;
-            color: #555;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            font-size: 0.95em;
+            color: #444;
         }
 
-        p {
-            margin: 5px 0;
+        h4 {
+            margin: 10px 0 5px;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Measurement Converter</h1>
-    <form method="post">
-        <!-- Temperature -->
-        <div class="section">
-            <h2>A. Temperature (°C)</h2>
-            <input type="number" step="any" name="celsius" placeholder="Enter Celsius">
-            <div class="results">
-                <?php if ($fahrenheit !== ""): ?>
-                    <p>Fahrenheit: <?= round($fahrenheit, 2) ?> °F</p>
-                    <p>Kelvin: <?= round($kelvin, 2) ?> K</p>
-                <?php endif; ?>
-            </div>
-        </div>
 
-        <!-- Speed -->
-        <div class="section">
-            <h2>B. Speed (km/h)</h2>
-            <input type="number" step="any" name="kmh" placeholder="Enter km/h">
-            <div class="results">
-                <?php if ($ms !== ""): ?>
-                    <p>Meters/second: <?= round($ms, 2) ?> m/s</p>
-                    <p>Knots: <?= round($knots, 2) ?> knots</p>
-                <?php endif; ?>
+<div class="wrapper">
+    <div class="container">
+        <h2>Unit Converter</h2>
+        <form method="POST">
+            <!-- A. Temperature -->
+            <div class="converter">
+                <h3>A. Temperature</h3>
+                <label>Enter Temperature:</label>
+                <div class="input-group">
+                    <input type="number" name="temp_value" step="any">
+                    <select name="temp_unit">
+                        <option value="celsius">Celsius</option>
+                        <option value="fahrenheit">Fahrenheit</option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <!-- Mass -->
-        <div class="section">
-            <h2>C. Mass</h2>
-            <input type="number" step="any" name="mass" placeholder="Enter mass">
-            <select name="massUnit">
-                <option value="kg">Kilograms ➝ Grams</option>
-                <option value="g">Grams ➝ Kilograms</option>
-            </select>
-            <div class="results">
-                <?php if ($grams !== ""): ?>
-                    <p>Grams: <?= round($grams, 2) ?> g</p>
-                <?php endif; ?>
-                <?php if ($kg !== ""): ?>
-                    <p>Kilograms: <?= round($kg, 2) ?> kg</p>
-                <?php endif; ?>
+            <!-- B. Speed -->
+            <div class="converter">
+                <h3>B. Speed</h3>
+                <label>Enter Speed:</label>
+                <div class="input-group">
+                    <input type="number" name="speed_value" step="any">
+                    <select name="speed_unit">
+                        <option value="kmh">km/h</option>
+                        <option value="mps">m/s</option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <button type="submit">Convert</button>
-    </form>
+            <!-- C. Mass -->
+            <div class="converter">
+                <h3>C. Mass</h3>
+                <label>Enter Mass:</label>
+                <div class="input-group">
+                    <input type="number" name="mass_value" step="any">
+                    <select name="mass_unit">
+                        <option value="kg">Kilograms</option>
+                        <option value="g">Grams</option>
+                    </select>
+                </div>
+            </div>
+
+            <input type="submit" value="Convert">
+        </form>
+
+        <?php if ($_SERVER["REQUEST_METHOD"] == "POST"): ?>
+            <div class="results">
+                <?php
+                // A. Temperature
+                if (!empty($_POST["temp_value"])) {
+                    $value = floatval($_POST["temp_value"]);
+                    $unit = $_POST["temp_unit"];
+                    echo "<h4>Temperature:</h4>";
+                    if ($unit == "celsius") {
+                        $f = ($value * 9/5) + 32;
+                        echo "$value °C = $f °F<br>";
+                    } else {
+                        $c = ($value - 32) * 5/9;
+                        echo "$value °F = " . round($c, 2) . " °C<br>";
+                    }
+                }
+
+                // B. Speed
+                if (!empty($_POST["speed_value"])) {
+                    $speed = floatval($_POST["speed_value"]);
+                    $unit = $_POST["speed_unit"];
+                    echo "<h4>Speed:</h4>";
+                    if ($unit == "kmh") {
+                        echo "$speed km/h = " . round($speed * 1000 / 3600, 2) . " m/s<br>";
+                    } else {
+                        echo "$speed m/s = " . round($speed * 3.6, 2) . " km/h<br>";
+                    }
+                }
+
+                // C. Mass
+                if (!empty($_POST["mass_value"])) {
+                    $mass = floatval($_POST["mass_value"]);
+                    $unit = $_POST["mass_unit"];
+                    echo "<h4>Mass:</h4>";
+                    if ($unit == "kg") {
+                        echo "$mass kg = " . ($mass * 1000) . " g<br>";
+                    } else {
+                        echo "$mass g = " . ($mass / 1000) . " kg<br>";
+                    }
+                }
+                ?>
+            </div>
+        <?php endif; ?>
+    </div>
 </div>
+
 </body>
 </html>
